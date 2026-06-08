@@ -5,10 +5,16 @@ if (Test-Path $ProfileImportsFile) {
     # You need a local script in the same dir as $PROFILE with one line each for things to import, like this for posh-git, other local things
     # I set it up this way because I don't want the specific posh-git location on any machine to force the same location on other machines. And I didn't know a better way. This seems fine.
     Get-Content $ProfileImportsFile | ForEach-Object {
-        if ($_.substring(0,1) -ne '#') {
-            Import-Module $_
+        $moduleName = $_.Trim()
+        if ($moduleName -and $moduleName.Substring(0,1) -ne '#') {
+            if (-not (Get-Module -ListAvailable -Name $moduleName)) {
+                Write-Host "First time setup: installing $moduleName"
+                PowerShellGet\Install-Module $moduleName -Scope CurrentUser -Force
+            }
+
+            Import-Module $moduleName
             if ($verboseLoading) {
-                Write-Host "Loaded module $_"
+                Write-Host "Loaded module $moduleName"
             }
         }
     }
@@ -100,6 +106,10 @@ Set-Alias ls lsfunc
 
 Remove-Item alias:sl -Force
 Set-Alias sl ls
+
+function Pretty-Print-Path {
+    $env:PATH -split ';'
+}
 
 # tail - because I can never remember the equivalent Get-Content
 function tail() {
