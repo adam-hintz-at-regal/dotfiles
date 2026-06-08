@@ -15,14 +15,14 @@ function mklink-if-not-exists {
     $exists = Test-Path $destination
     $notSymlink = $true
     if ($exists) {
-        $linkType = (dir $destination).LinkType
-        $notSymlink = ($linkType -ne $null) -and ($linkType.ToString() -ne "SymbolicLink")
+        $linkType = (Get-ChildItem $destination).LinkType
+        $notSymlink = ($null -ne $linkType) -and ($linkType.ToString() -ne "SymbolicLink")
         if ($notSymlink) {
             Write-Host "[WARNING] Skipped making link because $destination is already a file, but it's not a symlink"
         } elseif ($notSymlink -and (!$override)) {
             Write-Host "[OK] Skipped making link because $destination is already a symlink"
         } else {
-            rm $destination
+            Remove-Item -Path $destination
             cmd /c mklink $destination $source
         }
     } else {
@@ -35,18 +35,25 @@ function mklink-if-not-exists {
 
 Write-Host "NOTE: Any call to mklink requires admin privileges, so make sure you're running this as Admin if you're getting errors"
 
-mklink-if-not-exists $HOME\.gitignore (Join-Path -Path (pwd) -ChildPath "gitignore")
-mklink-if-not-exists $HOME\.gitconfig (Join-Path -Path (pwd) -ChildPath "gitconfig")
-mklink-if-not-exists $HOME\.tmux.conf (Join-Path -Path (pwd) -ChildPath "tmux.conf")
+mklink-if-not-exists $HOME\.gitignore (Join-Path -Path (Get-Location) -ChildPath "gitignore")
+mklink-if-not-exists $HOME\.gitconfig (Join-Path -Path (Get-Location) -ChildPath "gitconfig")
+mklink-if-not-exists $HOME\.tmux.conf (Join-Path -Path (Get-Location) -ChildPath "tmux.conf")
 
 $nvimConfigPath="$HOME\AppData\Local\nvim"
 if (!(Test-Path -path $nvimConfigPath)) {
     New-Item -Type directory $nvimConfigPath
 }
-mklink-if-not-exists "$nvimConfigPath\init.lua" (Join-Path -Path (pwd) -ChildPath "config\nvim\init.lua")
+mklink-if-not-exists "$nvimConfigPath\init.lua" (Join-Path -Path (Get-Location) -ChildPath "config\nvim\init.lua")
 
 if (!(Test-Path -path (Split-Path $PROFILE))) {
     New-Item -Type directory (Split-Path $PROFILE)
 }
-mklink-if-not-exists $PROFILE (Join-Path -Path (pwd) -ChildPath "Microsoft.PowerShell_profile.ps1")
+mklink-if-not-exists $PROFILE (Join-Path -Path (Get-Location) -ChildPath "Microsoft.PowerShell_profile.ps1")
 
+# Copy `profile-imports.txt`. This is a custom file that loads powershell modules, and is
+# currently very under-utilized, but that might change.
+# In general, I want this copied because a machine might have specific modules but if I want
+# to backport it, I want that to be an intentional choice.
+if (!Test-Path -path "$HOME\Documents\Powershell\profile-imports.txt") {
+    Copy-Item (Join-Path -Path (Get-Location) -ChildPath "profile-imports.txt") "$HOME\Documents\Powershell\profile-imports.txt"
+}
