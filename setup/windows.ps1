@@ -34,6 +34,7 @@ function mklink-if-not-exists {
 ## Make links to RC files
 
 Write-Host "NOTE: Any call to mklink requires admin privileges, so make sure you're running this as Admin if you're getting errors"
+Write-Host "NOTE: Or, turn on Developer Mode (Settings -> Advanced -> Developer Mode)"
 
 mklink-if-not-exists $HOME\.gitignore (Join-Path -Path (Get-Location) -ChildPath "gitignore")
 mklink-if-not-exists $HOME\.gitconfig (Join-Path -Path (Get-Location) -ChildPath "gitconfig")
