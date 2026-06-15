@@ -38,7 +38,9 @@ Write-Host "NOTE: Or, turn on Developer Mode (Settings -> Advanced -> Developer 
 
 mklink-if-not-exists $HOME\.gitignore (Join-Path -Path (Get-Location) -ChildPath "gitignore")
 mklink-if-not-exists $HOME\.gitconfig (Join-Path -Path (Get-Location) -ChildPath "gitconfig")
+
 mklink-if-not-exists $HOME\.tmux.conf (Join-Path -Path (Get-Location) -ChildPath "tmux.conf")
+mklink-if-not-exists $HOME\.psmux.conf (Join-Path -Path (Get-Location) -ChildPath "psmux.conf")
 
 $nvimConfigPath="$HOME\AppData\Local\nvim"
 if (!(Test-Path -path $nvimConfigPath)) {
@@ -55,6 +57,6 @@ mklink-if-not-exists $PROFILE (Join-Path -Path (Get-Location) -ChildPath "Micros
 # currently very under-utilized, but that might change.
 # In general, I want this copied because a machine might have specific modules but if I want
 # to backport it, I want that to be an intentional choice.
-if (!Test-Path -path "$HOME\Documents\Powershell\profile-imports.txt") {
+if (!(Test-Path -path "$HOME\Documents\Powershell\profile-imports.txt")) {
     Copy-Item (Join-Path -Path (Get-Location) -ChildPath "profile-imports.txt") "$HOME\Documents\Powershell\profile-imports.txt"
 }
