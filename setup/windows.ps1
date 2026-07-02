@@ -17,17 +17,26 @@ function mklink-if-not-exists {
     if ($exists) {
         $linkType = (Get-ChildItem $destination).LinkType
         $notSymlink = ($null -ne $linkType) -and ($linkType.ToString() -ne "SymbolicLink")
+        $target = (Get-Item $destination).Target
         if ($notSymlink) {
             Write-Host "[WARNING] Skipped making link because $destination is already a file, but it's not a symlink"
-        } elseif ($notSymlink -and (!$override)) {
+            return
+        } elseif (-not $notSymlink -and (!$override)) {
             Write-Host "[OK] Skipped making link because $destination is already a symlink"
+            return
+        } elseif (-not $notSymlink -and $override -and $target -eq $source) {
+            Write-Host "[OK] Skipped making link because $destination is already a symlink to the same source"
+            return
         } else {
             Remove-Item -Path $destination
-            cmd /c mklink $destination $source
         }
-    } else {
-        cmd /c mklink $destination $source
     }
+    # If the destination's directory doesn't exist, create it first.
+    $destinationDir = Split-Path -Path $destination -Parent
+    if (!(Test-Path -path $destinationDir)) {
+        New-Item -Type directory -Force $destinationDir
+    }
+    cmd /c mklink $destination $source
     Write-Host "Done"
 }
 
