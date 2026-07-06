@@ -200,7 +200,7 @@ function ConvertFrom-Base64 {
 Set-Alias grep rg
 
 Set-Alias Real-Vim vim.bat
-Set-Alias vim neovide
+Set-Alias vim nvim
 
 function gg() { git grep -i @args }
 
