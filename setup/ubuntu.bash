@@ -7,11 +7,20 @@ set -o pipefail
 # Don't allow unset variables
 set -u
 
+# Print line number when failure happens (not always the default)
+catch_error() {
+    echo "Error occurred on line $1" >&2
+}
+trap 'catch_error $LINENO' ERR
+
 sudo apt-get update
 sudo apt-get upgrade -y
 
-if ![[ -d "~/.tmux" ]]; then
+if ! [[ -e ~/.tmux.conf ]]; then
     ln -s src/dotfiles/tmux.conf .tmux.conf
+fi
+
+if ! [[ -d ~/.tmux ]]; then
     mkdir .tmux
     cd .tmux
     ln -s ../src/dotfiles/tmux/3grid 3grid

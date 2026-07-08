@@ -12,8 +12,8 @@ sudo pacman -Syu
 
 if ! [[ -d "~/.tmux" ]]; then
     if [[ -e ".tmux.conf" ]]; then
-            mv .tmux.conf /tmp/tmux.conf
-        fi
+        mv .tmux.conf /tmp/tmux.conf
+    fi
 
     ln -s src/dotfiles/tmux.conf .tmux.conf
     mkdir .tmux

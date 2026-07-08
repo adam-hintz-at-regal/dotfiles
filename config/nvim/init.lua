@@ -233,6 +233,37 @@ vim.api.nvim_create_user_command(
   }
 )
 
+-- Use :Promote to open the current file in Neovide (when in nvim).
+-- :Promote   - only works if the buffer has no unsaved changes
+-- :Promote!  - promotes without saving (unsaved changes are discarded)
+vim.api.nvim_create_user_command("Promote", function(opts)
+  if vim.g.neovide then
+    vim.notify("Already running in Neovide", vim.log.levels.WARN)
+    return
+  end
+
+  if vim.bo.modified and not opts.bang then
+    vim.notify("Buffer has unsaved changes. Use :Promote! to promote without saving", vim.log.levels.ERROR)
+    return
+  end
+
+  local file = vim.api.nvim_buf_get_name(0)
+  if file == '' then
+    vim.notify("No file associated with this buffer", vim.log.levels.ERROR)
+    return
+  end
+
+  local line = vim.fn.line('.')
+  local col = vim.fn.col('.')
+
+  vim.fn.jobstart(
+    { "neovide", file, "--", string.format("+call cursor(%d,%d)", line, col) },
+    { detach = true }
+  )
+
+  vim.cmd("quit!")
+end, { bang = true, desc = "Promote current buffer to Neovide from nvim" })
+
 -- Use :T to open a terminal in a new tab. If arguments are provided, run the command in the terminal.
 -- The "!" command is a built-in Ex command and cannot be overwritten or shadowed with a user command.
 vim.api.nvim_create_user_command("T", function(opts)
