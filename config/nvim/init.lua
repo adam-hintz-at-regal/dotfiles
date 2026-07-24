@@ -302,6 +302,25 @@ if os_name == "Windows" then
   vim.opt.shellxquote = ""
 end
 
+---------------------------
+-- Filetype-specific config
+---------------------------
+
+-- Ordinarily this would be in `~/.config/nvim/after/ftplugin/markdown.lua` or the like
+-- but I'm doing this for relative simplicity. Consider moving it to its own file if
+-- it grows and becomes unwieldy
+
+local markdown_group = vim.api.nvim_create_augroup("MarkdownSettings", { clear = true })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  group = markdown_group,
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true
+  end,
+})
+
 ------------------------
 -- Local-specific config
 ------------------------
